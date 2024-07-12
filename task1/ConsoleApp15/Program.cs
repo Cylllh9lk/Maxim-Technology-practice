@@ -4,7 +4,7 @@ namespace ConsoleApp15
 {
     internal class Program
     {
-        private static string WrongChars(string text)
+        static string WrongChars(string text)
         {
             int count = 0;
             char[] chars = text.ToCharArray();
@@ -35,7 +35,7 @@ namespace ConsoleApp15
                 return false;
             }
         }
-        private static string ReversString(string text)
+        static string ReversString(string text)
         {
             string ans;
             int len = text.Length;
@@ -57,6 +57,14 @@ namespace ConsoleApp15
                 return ans;
             }
         }
+        static Dictionary<char, int> NumberOfOccurrences(string text)
+        {
+            {   
+                return text.GroupBy(c => c)//Строка - коллекция символов , поэтому при помощи GroupBy перебираем её
+                       .ToDictionary(g => g.Key, g => g.Count());
+            }
+
+        }
         static void Main(string[] args)
         {
             string s;
@@ -64,11 +72,17 @@ namespace ConsoleApp15
             if (IsOnlyLetters_Method(s) == true) //Проверка на введение символов
             {
                 Console.WriteLine(ReversString(s)); // Переворот строки
+                var result = NumberOfOccurrences(s); //Получение количества вхождений символов
+                foreach (var item in result)
+                {
+                    Console.WriteLine($"Символ: {item.Key}, Количество: {item.Value}"); // Вывод количества символов 
+                }
                 Console.ReadKey();
             }
             else
             {
                 Console.WriteLine("Введены некорректные символы : " + WrongChars(s));
+                
                 Console.ReadKey();
             }
         }
