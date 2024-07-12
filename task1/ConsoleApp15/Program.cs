@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using System.Threading.Channels;
 
 namespace ConsoleApp15
 {
@@ -65,10 +66,37 @@ namespace ConsoleApp15
             }
 
         }
+        static string FindLongestVowelSubstring(string text)
+        {
+            string vowels = "aeiouy"; //Определение гласных
+            int maxLength = 0;
+            string longestSubstring = string.Empty;
+
+            for (int i = 0; i < text.Length; i++) // Внешний цикл на поиск гласной
+            {
+                if (vowels.Contains(text[i]))
+                {
+                    for (int j = text.Length - 1; j > i; j--) // Внутренний цикл на поиск самой длинной подстроки
+                    {
+                        if (vowels.Contains(text[j]))
+                        {
+                            int length = j - i + 1;
+                            if (length > maxLength)
+                            {
+                                maxLength = length;
+                                longestSubstring = text.Substring(i, length);
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return longestSubstring;
+        }
         static void Main(string[] args)
         {
-            string s;
-            s = Console.ReadLine(); //Вход данных
+            string s = Console.ReadLine(); //Вход данных
             if (IsOnlyLetters_Method(s) == true) //Проверка на введение символов
             {
                 Console.WriteLine(ReversString(s)); // Переворот строки
@@ -77,6 +105,7 @@ namespace ConsoleApp15
                 {
                     Console.WriteLine($"Символ: {item.Key}, Количество: {item.Value}"); // Вывод количества символов 
                 }
+                Console.WriteLine(FindLongestVowelSubstring(ReversString(s)));
                 Console.ReadKey();
             }
             else
