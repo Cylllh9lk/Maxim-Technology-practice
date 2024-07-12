@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Net.Http;
+using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Threading.Channels;
 
@@ -6,7 +8,7 @@ namespace ConsoleApp15
 {
     internal class Program
     {
-        static string WrongChars(string text)
+        public static string WrongChars(string text)
         {                                           //Выявление неправильно введёных символов и склеивание в строку
             int count = 0;
             char[] chars = text.ToCharArray();
@@ -26,7 +28,7 @@ namespace ConsoleApp15
             else
                 return text;
         }
-        static bool IsOnlyLetters_Method(string text)
+        public static bool IsOnlyLetters_Method(string text)
         {
             if (Regex.IsMatch(text, "^[a-z]*$")) //Метод проверяет символы по шаблону
             {
@@ -37,7 +39,7 @@ namespace ConsoleApp15
                 return false;
             }
         }
-        static string ReversString(string text)
+        public static string ReversString(string text)
         {
             string ans;
             int len = text.Length;
@@ -59,7 +61,7 @@ namespace ConsoleApp15
                 return ans;
             }
         }
-        static Dictionary<char, int> NumberOfOccurrences(string text)
+        public static Dictionary<char, int> NumberOfOccurrences(string text)
         {
             {   
                 return text.GroupBy(c => c)//Строка - коллекция символов , поэтому при помощи GroupBy перебираем её
@@ -67,7 +69,7 @@ namespace ConsoleApp15
             }
 
         }
-        static string FindLongestVowelSubstring(string text)
+        public static string FindLongestVowelSubstring(string text)
         {
             string vowels = "aeiouy"; //Определение гласных
             int maxLength = 0;
@@ -201,7 +203,38 @@ namespace ConsoleApp15
                 return left + node.Value + right;
             }
         }
-        static void Main(string[] args)
+
+        private static async Task<int> GetRandomNumberAsync(int max)  //Получение случайного числа от API
+        {
+            string apiUrl =$"http://www.randomnumberapi.com/api/v1.0/random?min=0&max={max-1}&count=1"; //Запрос к API
+            HttpResponseMessage response = await client.GetAsync(apiUrl);
+            response.EnsureSuccessStatusCode();
+
+            string responseBody = await response.Content.ReadAsStringAsync();
+
+            // Вывод отладочной информации
+            Console.WriteLine($"Ответ API: {responseBody}");
+
+            // Удаление всех символов кроме цифр
+            responseBody = new string(responseBody.Where(char.IsDigit).ToArray());
+
+            // Проверка и обработка данных
+            if (int.TryParse(responseBody, out int randomNumber))
+            {
+                return randomNumber;
+            }
+            else
+            {
+                throw new FormatException($"Некорректный формат данных: не удалось преобразовать '{responseBody}' в число.");
+            }
+
+        }
+        private static string RemoveCharacterAt(string input, int index) // Удаляет из строки символ с ключом которое получено как число полученное от API
+        {
+            return input.Remove(index, 1);
+        }
+        private static readonly HttpClient client = new HttpClient();
+        static async Task Main(string[] args)
         {
             while (true)
             {
@@ -235,6 +268,9 @@ namespace ConsoleApp15
                             Console.WriteLine("Неверный выбор");
                             return;
                     }
+                    int randomIndex = await GetRandomNumberAsync(ReversString(s).Length); // Вызов API
+                    Console.WriteLine("Строка с удалённым символом : "+RemoveCharacterAt(ReversString(s), randomIndex));// Вывод строки с удалённым символом API
+                    
                 }
                 else
                 {
