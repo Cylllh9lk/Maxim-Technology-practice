@@ -1,29 +1,76 @@
-﻿namespace ConsoleApp15
+﻿using System.Text.RegularExpressions;
+
+namespace ConsoleApp15
 {
     internal class Program
     {
-        static void Main(string[] args)
+        private static string WrongChars(string text)
         {
-            string s , ans;
-            s = Console.ReadLine();
-            int len = s.Length;
-            if (len % 2 == 0)
+            int count = 0;
+            char[] chars = text.ToCharArray();
+            char[] result = new char[chars.Length];
+            for (int i = 0; i < chars.Length; i++)
             {
-                char[] s1 = s.Substring(0, len / 2).ToCharArray();
-                char[] s2 = s.Substring(len / 2).ToCharArray();
-                Array.Reverse(s1);
-                Array.Reverse(s2);
-                ans = new string(s1) + new string(s2);
+                if (!(chars[i] >= 'a' && chars[i] <= 'z'))
+                {
+                    char a = chars[i];
+                    result[i] = a;
+                    count++;
+                }
+            }
+            var b = string.Join("", result);
+            if (count > 0)
+                return b;
+            else
+                return text;
+        }
+        static bool IsOnlyLetters_Method(string text)
+        {
+            if (Regex.IsMatch(text, "^[a-z]*$")) //Метод проверяет символы по шаблону
+            {
+                return true;
             }
             else
             {
-                char[] s3 = s.ToCharArray();
+                return false;
+            }
+        }
+        private static string ReversString(string text)
+        {
+            string ans;
+            int len = text.Length;
+            if (len % 2 == 0) //Проверка на чётность , если чётное поделить на две части и перевернуть
+            {
+                char[] s1 = text.Substring(0, len / 2).ToCharArray();
+                char[] s2 = text.Substring(len / 2).ToCharArray();
+                Array.Reverse(s1);
+                Array.Reverse(s2);
+                ans = new string(s1) + new string(s2);
+                return ans;
+            }
+            else // Перевернуть строку
+            {
+                char[] s3 = text.ToCharArray();
                 Array.Reverse(s3);
                 string s4 = new string(s3);
-                ans = s4 + s;
+                ans = s4 + text;
+                return ans;
             }
-            Console.WriteLine(ans);
-            Console.ReadKey();
+        }
+        static void Main(string[] args)
+        {
+            string s;
+            s = Console.ReadLine(); //Вход данных
+            if (IsOnlyLetters_Method(s) == true) //Проверка на введение символов
+            {
+                Console.WriteLine(ReversString(s)); // Переворот строки
+                Console.ReadKey();
+            }
+            else
+            {
+                Console.WriteLine("Введены некорректные символы : " + WrongChars(s));
+                Console.ReadKey();
+            }
         }
     }
 } 
