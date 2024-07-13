@@ -1,3 +1,5 @@
+using WebApplication7.Models;
+
 namespace WebApplication7
 {
     public class Program
@@ -31,5 +33,6 @@ namespace WebApplication7
 
             app.Run();
         }
+    
     }
 }
