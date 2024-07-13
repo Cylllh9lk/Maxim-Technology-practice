@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using WebApplication7.Models;
 
 namespace YourNamespace.Controllers
 {
@@ -13,7 +15,12 @@ namespace YourNamespace.Controllers
     public class StringProcessingController : ControllerBase
     {
         private static readonly HttpClient client = new HttpClient();
+        private readonly StringChecker _stringChecker;
 
+        public StringProcessingController(IConfiguration configuration)
+        {
+            _stringChecker = new StringChecker(configuration);
+        }
         [HttpGet]
         public async Task<IActionResult> ProcessString([FromQuery] string input)
         {
@@ -21,11 +28,15 @@ namespace YourNamespace.Controllers
             {
                 return BadRequest("Неверно введённая строка.");
             }
-
+            if (!_stringChecker.IsStringAllowed(input)) //Проверка по черному списку
+            {
+                return BadRequest("Строка содержит запрещенные слова.");
+            }
             if (!IsOnlyLetters_Method(input)) //Проверка символов строки
             {
                 return BadRequest("Неправильно введёные символы: " + WrongChars(input));
             }
+
 
             string reversedString = ReversString(input);
             var occurrences = NumberOfOccurrences(input);
@@ -42,13 +53,27 @@ namespace YourNamespace.Controllers
                 Occurrences = occurrences,
                 LongestVowelSubstring = longestVowelSubstring,
                 SortedString = sortedString,
-                RemovedChar = $"Символ - '{removedChar }' был удалён , находился на {randomIndex + 1} позиции в строке",
+                RemovedChar = $"Символ - '{removedChar}' был удалён , находился на {randomIndex + 1} позиции в строке",
                 ResultString = resultString
             };
 
             return Ok(response);
         }
 
+        public class StringChecker
+        {
+            private readonly List<string> _blacklist;
+
+            public StringChecker(IConfiguration configuration)
+            {
+                _blacklist = configuration.GetSection("Settings:Blacklist").Get<List<string>>();
+            }
+
+            public bool IsStringAllowed(string input)
+            {
+                return !_blacklist.Contains(input);
+            }
+        }
         public static string WrongChars(string text)
         {
             int count = 0;
@@ -140,9 +165,14 @@ namespace YourNamespace.Controllers
             return longestSubstring;
         }
 
-        private static async Task<int> GetRandomNumberAsync(int max)
+        public static async Task<int> GetRandomNumberAsync(int max)
         {
-            string apiUrl = $"http://www.randomnumberapi.com/api/v1.0/random?min=0&max={max - 1}&count=1";
+            string apiUrlTemplate = AppConfig.Configuration["RandomApi"];
+            string apiUrl = $"{apiUrlTemplate}?min=0&max={max - 1}&count=1";
+            if (!Uri.IsWellFormedUriString(apiUrl, UriKind.Absolute))
+            {
+                throw new InvalidOperationException("The request URI must be an absolute URI.");
+            }
             HttpResponseMessage response = await client.GetAsync(apiUrl);
             response.EnsureSuccessStatusCode();
 
@@ -210,4 +240,3 @@ namespace YourNamespace.Controllers
         }
     }
 }
-
