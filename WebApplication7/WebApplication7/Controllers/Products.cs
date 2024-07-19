@@ -38,7 +38,7 @@ namespace YourNamespace.Controllers
             }
 
 
-            string reversedString = ReversString(input);
+            string reversedString = StringManipulator.ReversString(input);
             var occurrences = NumberOfOccurrences(input);
             string longestVowelSubstring = FindLongestVowelSubstring(reversedString);
 
@@ -77,24 +77,25 @@ namespace YourNamespace.Controllers
         }
         public static string WrongChars(string text)
         {
-            int count = 0;
-            char[] chars = text.ToCharArray();
-            char[] result = new char[chars.Length];
-            for (int i = 0; i < chars.Length; i++)
+            var wrongChars = new List<char>();
+
+            foreach (var c in text)
             {
-                if (!(chars[i] >= 'a' && chars[i] <= 'z'))
+                // Проверяем, что символ не является буквой от 'a' до 'z'
+                if (!(c >= 'a' && c <= 'z'))
                 {
-                    char a = chars[i];
-                    result[i] = a;
-                    count++;
+                    // Добавляем в список, если это не буква и не пробел
+                    if (c != ' ')
+                    {
+                        wrongChars.Add(c);
+                    }
                 }
             }
-            var b = string.Join("", result);
-            if (count > 0)
-                return b;
-            else
-                return text;
+
+            // Преобразуем список в строку и возвращаем
+            return new string(wrongChars.ToArray());
         }
+
 
         public static bool IsOnlyLetters_Method(string text)
         {
@@ -107,30 +108,31 @@ namespace YourNamespace.Controllers
                 return false;
             }
         }
-
-        public static string ReversString(string text)
+        public class StringManipulator
         {
-            string ans;
-            int len = text.Length;
-            if (len % 2 == 0)
+            public static string ReversString(string text)
             {
-                char[] s1 = text.Substring(0, len / 2).ToCharArray();
-                char[] s2 = text.Substring(len / 2).ToCharArray();
-                Array.Reverse(s1);
-                Array.Reverse(s2);
-                ans = new string(s1) + new string(s2);
-                return ans;
-            }
-            else
-            {
-                char[] s3 = text.ToCharArray();
-                Array.Reverse(s3);
-                string s4 = new string(s3);
-                ans = s4 + text;
-                return ans;
+                string ans;
+                int len = text.Length;
+                if (len % 2 == 0)
+                {
+                    char[] s1 = text.Substring(0, len / 2).ToCharArray();
+                    char[] s2 = text.Substring(len / 2).ToCharArray();
+                    Array.Reverse(s1);
+                    Array.Reverse(s2);
+                    ans = new string(s1) + new string(s2);
+                    return ans;
+                }
+                else
+                {
+                    char[] s3 = text.ToCharArray();
+                    Array.Reverse(s3);
+                    string s4 = new string(s3);
+                    ans = s4 + text;
+                    return ans;
+                }
             }
         }
-
         public static Dictionary<char, int> NumberOfOccurrences(string text)
         {
             return text.GroupBy(c => c)
@@ -190,7 +192,7 @@ namespace YourNamespace.Controllers
             }
         }
 
-        private static string RemoveCharacterAt(string input, int index)
+        public static string RemoveCharacterAt(string input, int index)
         {
             return input.Remove(index, 1);
         }
